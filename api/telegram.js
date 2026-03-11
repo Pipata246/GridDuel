@@ -31,9 +31,24 @@ export default async function handler(req, res) {
         '— разные режимы игр;\n' +
         '— онлайн-игры с другими игроками;\n' +
         '— игры против бота.\n\n' +
-        'Следи за обновлениями и выбирай режим, который тебе интересен! 🔥';
+        'Нажми кнопку ниже, чтобы открыть приложение.';
 
-      await sendMessage(token, chatId, replyText);
+      const webAppUrl = 'https://grid-duel.vercel.app/app.html';
+
+      await sendMessage(token, chatId, replyText, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: 'Открыть приложение',
+                web_app: {
+                  url: webAppUrl
+                }
+              }
+            ]
+          ]
+        }
+      });
     }
 
     res.status(200).json({ ok: true });
@@ -43,7 +58,7 @@ export default async function handler(req, res) {
   }
 }
 
-async function sendMessage(token, chatId, text) {
+async function sendMessage(token, chatId, text, extraPayload = {}) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
   const response = await fetch(url, {
@@ -54,7 +69,8 @@ async function sendMessage(token, chatId, text) {
     body: JSON.stringify({
       chat_id: chatId,
       text,
-      parse_mode: 'HTML'
+      parse_mode: 'HTML',
+      ...extraPayload
     })
   });
 
