@@ -219,7 +219,7 @@ body {
 
 .balance-card {
   margin-top: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   padding: 18px 16px;
   border-radius: 18px;
   background:
@@ -263,7 +263,7 @@ body {
 .balance-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .btn {
@@ -286,7 +286,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 10px;
 }
 
 .transactions-title {
