@@ -2,6 +2,15 @@
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const isTelegramWebApp = !!tg;
 
+  const SUPABASE_URL = 'https://gmklycilmztxetbpoqij.supabase.co';
+  const SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdta2x5Y2lsbXp0eGV0YnBvcWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMjQ4ODAsImV4cCI6MjA4ODgwMDg4MH0.j1BakH1ovkivrxg5ytNFguURnp8fo5Hp2HCtZXspco8';
+
+  const supabaseClient =
+    window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
   const usernameEl = document.getElementById('username');
   const avatarEl = document.getElementById('avatar');
   const avatarInitialsEl = document.getElementById('avatar-initials');
@@ -51,6 +60,33 @@
       if (avatarInitialsEl) {
         avatarInitialsEl.textContent = 'SD';
       }
+    }
+  }
+
+  async function upsertUserInSupabase(tgInstance) {
+    if (!supabaseClient || !tgInstance) return;
+
+    const user = tgInstance.initDataUnsafe && tgInstance.initDataUnsafe.user;
+    if (!user || !user.id) return;
+
+    try {
+      await supabaseClient
+        .from('users')
+        .upsert(
+          {
+            telegram_id: user.id,
+            username: user.username || null,
+            first_name: user.first_name || null,
+            last_name: user.last_name || null,
+            language_code: user.language_code || null,
+            photo_url: user.photo_url || null,
+            last_seen_at: new Date().toISOString()
+          },
+          { onConflict: 'telegram_id' }
+        )
+        .throwOnError();
+    } catch (e) {
+      // ignore client-side errors, Supabase is optional augmentation
     }
   }
 
@@ -138,6 +174,7 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
+    upsertUserInSupabase(tg);
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
