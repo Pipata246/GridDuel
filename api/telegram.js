@@ -33,9 +33,8 @@ export default async function handler(req, res) {
         '— игры против бота.\n\n' +
         'Нажми кнопку ниже, чтобы открыть приложение.';
 
-      // В этом проекте app.html лежит в папке public,
-      // на Vercel он будет доступен по пути /public/app.html
-      const webAppUrl = 'https://grid-duel.vercel.app/public/app.html';
+      // WebApp лежит в корне проекта и доступен по /app.html
+      const webAppUrl = 'https://grid-duel.vercel.app/app.html';
 
       await sendMessage(token, chatId, replyText, {
         reply_markup: {
