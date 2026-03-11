@@ -166,40 +166,8 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
-
-    // Логика приветственного экрана и согласия с правилами
-    const welcomeOverlay = document.getElementById('welcome-overlay');
-    const welcomeAccept = document.getElementById('welcome-accept');
-
-    if (welcomeOverlay && welcomeAccept) {
-      try {
-        await syncUserWithBackend(tg);
-
-        const alreadyAccepted = !!window.currentUserTermsAccepted;
-
-        if (!alreadyAccepted) {
-          welcomeOverlay.classList.add('welcome-overlay--visible');
-          welcomeAccept.onclick = async function () {
-            try {
-              if (!window.currentUserId) return;
-
-              await fetch('/api/user', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId: window.currentUserId, action: 'accept_terms' })
-              });
-            } catch (e) {
-              // если не сохранили, просто прячем экран, чтобы не мешал
-            }
-            welcomeOverlay.classList.remove('welcome-overlay--visible');
-          };
-        }
-      } catch (e) {
-        // если не получилось дернуть БД, не блокируем пользователя
-      }
-    }
+    // Просто синхронизируем пользователя с бэком без доп. экранов
+    await syncUserWithBackend(tg);
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
