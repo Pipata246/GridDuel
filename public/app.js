@@ -172,101 +172,93 @@
     const welcomeAccept = document.getElementById('welcome-accept');
     const welcomeLoader = document.getElementById('welcome-loader');
 
-    // Прелоад данных сразу при старте
-    let bootstrapFinished = false;
-
-    const bootstrap = (async function () {
-      try {
-        await syncUserWithBackend(tg);
-
-        if (window.currentUserId) {
-          try {
-            const response = await fetch('/api/user', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                userId: window.currentUserId,
-                action: 'load_balance'
-              })
-            });
-
-            if (response.ok) {
-              const payload = await response.json();
-              if (payload && payload.ok) {
-                const balance =
-                  payload && typeof payload.balance === 'number'
-                    ? payload.balance
-                    : window.currentUserBalance || 0;
-
-                window.currentUserBalance = balance;
-                window.cachedTransactions = payload.transactions || [];
-
-                const balanceAmountEl = document.getElementById('balance-amount');
-                if (balanceAmountEl) {
-                  balanceAmountEl.textContent = balance.toFixed(0);
-                }
-              }
-            }
-          } catch (e) {
-            // игнорируем, не блокируем старт
-          }
-        }
-      } finally {
-        bootstrapFinished = true;
-        if (welcomeOverlay) {
-          welcomeOverlay.classList.remove('welcome-overlay--loading');
-        }
-        if (welcomeAccept) {
-          welcomeAccept.disabled = false;
-        }
-      }
-    })();
-
-    if (welcomeOverlay && welcomeAccept) {
-      welcomeOverlay.classList.add('welcome-overlay--loading');
-      welcomeAccept.disabled = true;
+    if (welcomeOverlay && welcomeAccept && welcomeLoader) {
+      let isStarting = false;
 
       const alertModal = document.getElementById('alert-modal');
       const alertModalMessage = document.getElementById('alert-modal-message');
       const alertModalClose = document.getElementById('alert-modal-close');
 
-      welcomeAccept.addEventListener('click', function () {
-        if (!bootstrapFinished) {
-          // если по какой-то причине ещё грузится, просто игнорируем клик
-          return;
-        }
+      welcomeAccept.addEventListener('click', async function () {
+        if (isStarting) return;
+        isStarting = true;
 
-        welcomeOverlay.classList.add('welcome-overlay--hidden');
+        welcomeAccept.disabled = true;
+        welcomeOverlay.classList.add('welcome-overlay--loading');
 
-        // После приветственного экрана, если пользователь ещё не принял правила — показываем модалку согласия
-        if (!window.currentUserTermsAccepted && window.currentUserId && alertModal && alertModalMessage && alertModalClose) {
-          alertModalMessage.textContent =
-            'Играя в GridDuel, ты подтверждаешь, что будешь соблюдать правила и относиться уважительно к соперникам.';
-          alertModal.classList.add('alert-modal--open');
+        try {
+          const backendUser = await syncUserWithBackend(tg);
 
-          const handleAccept = async function () {
+          if (window.currentUserId) {
             try {
-              await fetch('/api/user', {
+              const response = await fetch('/api/user', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                   userId: window.currentUserId,
-                  action: 'accept_terms'
+                  action: 'load_balance'
                 })
               });
-              window.currentUserTermsAccepted = true;
-            } catch (e) {
-              // игнорируем, не блокируем закрытие
-            } finally {
-              alertModalClose.removeEventListener('click', handleAccept);
-            }
-          };
 
-          alertModalClose.addEventListener('click', handleAccept);
+              if (response.ok) {
+                const payload = await response.json();
+                if (payload && payload.ok) {
+                  const balance =
+                    payload && typeof payload.balance === 'number'
+                      ? payload.balance
+                      : window.currentUserBalance || 0;
+
+                  window.currentUserBalance = balance;
+                  window.cachedTransactions = payload.transactions || [];
+
+                  const balanceAmountEl = document.getElementById('balance-amount');
+                  if (balanceAmountEl) {
+                    balanceAmountEl.textContent = balance.toFixed(0);
+                  }
+                }
+              }
+            } catch (e) {
+              // игнорируем, не блокируем старт
+            }
+          }
+
+          welcomeOverlay.classList.add('welcome-overlay--hidden');
+
+          const termsAlreadyAccepted =
+            (backendUser && backendUser.termsAccepted) || window.currentUserTermsAccepted;
+
+          if (!termsAlreadyAccepted && window.currentUserId && alertModal && alertModalMessage && alertModalClose) {
+            alertModalMessage.textContent =
+              'Играя в GridDuel, ты подтверждаешь, что будешь соблюдать правила и относиться уважительно к соперникам.';
+            alertModal.classList.add('alert-modal--open');
+
+            const handleAccept = async function () {
+              try {
+                await fetch('/api/user', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    userId: window.currentUserId,
+                    action: 'accept_terms'
+                  })
+                });
+                window.currentUserTermsAccepted = true;
+              } catch (e) {
+                // игнорируем, не блокируем закрытие
+              } finally {
+                alertModalClose.removeEventListener('click', handleAccept);
+                alertModal.classList.remove('alert-modal--open');
+              }
+            };
+
+            alertModalClose.addEventListener('click', handleAccept);
+          }
+        } finally {
+          welcomeOverlay.classList.remove('welcome-overlay--loading');
         }
       });
     }
