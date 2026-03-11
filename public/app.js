@@ -254,8 +254,12 @@
                   window.cachedTransactions = payload.transactions || [];
 
                   const balanceAmountEl = document.getElementById('balance-amount');
+                  const headerBalanceEl = document.getElementById('header-balance-amount');
                   if (balanceAmountEl) {
                     balanceAmountEl.textContent = balance.toFixed(0);
+                  }
+                  if (headerBalanceEl) {
+                    headerBalanceEl.textContent = balance.toFixed(0);
                   }
                 }
               }
@@ -318,6 +322,7 @@
   const profilePage = document.getElementById('page-profile');
   const navItems = document.querySelectorAll('.nav-item');
   const balanceAmountEl = document.getElementById('balance-amount');
+  const headerBalanceEl = document.getElementById('header-balance-amount');
   const transactionsPanel = document.getElementById('transactions-panel');
   const transactionsOpen = document.getElementById('transactions-open');
   const transactionsClose = document.getElementById('transactions-close');
@@ -510,7 +515,7 @@
   (function initNavSound() {
     let navSound = null;
     try {
-      navSound = new Audio('/sounds/menu.mp3');
+      navSound = new Audio('/sounds/tap.wav');
       navSound.load();
     } catch (e) {
       navSound = null;
@@ -601,6 +606,9 @@
 
       if (balanceAmountEl) {
         balanceAmountEl.textContent = balance.toFixed(0);
+      }
+      if (headerBalanceEl) {
+        headerBalanceEl.textContent = balance.toFixed(0);
       }
 
       const txData = payload.transactions || [];

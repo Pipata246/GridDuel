@@ -133,7 +133,45 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 10px;
   flex: 0 0 auto;
+}
+
+.header-balance {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.8), transparent 60%);
+  box-shadow: 0 8px 18px rgba(1, 22, 43, 0.25);
+}
+
+.header-balance-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.header-balance-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-deep-navy);
+}
+
+.header-balance-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-balance-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--color-ocean);
 }
 
 .avatar {
