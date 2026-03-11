@@ -81,6 +81,42 @@
       window.currentUserTelegramId = backendUser.telegramId || null;
       window.currentUserUsername = backendUser.username || null;
       window.currentUserReferralCode = backendUser.referralCode || null;
+
+      // Мгновенно обновляем профиль после загрузки с бэка
+      const profileUsernameEl = document.getElementById('profile-username');
+      const profileTelegramIdEl = document.getElementById('profile-telegram-id');
+      const profileTermsStatusEl = document.getElementById('profile-terms-status');
+      const profileRefCodeEl = document.getElementById('profile-ref-code');
+
+      if (profileUsernameEl && window.currentUserUsername) {
+        profileUsernameEl.textContent = window.currentUserUsername;
+      }
+      if (profileTelegramIdEl && window.currentUserTelegramId) {
+        profileTelegramIdEl.textContent = String(window.currentUserTelegramId);
+      }
+      if (profileRefCodeEl && window.currentUserReferralCode) {
+        profileRefCodeEl.textContent = window.currentUserReferralCode;
+      }
+      if (profileTermsStatusEl) {
+        if (!window.currentUserTermsAccepted) {
+          profileTermsStatusEl.textContent = 'Ещё не приняты';
+        } else if (!window.currentUserTermsAcceptedAt) {
+          profileTermsStatusEl.textContent = 'Приняты';
+        } else {
+          const d = new Date(window.currentUserTermsAcceptedAt);
+          if (!Number.isNaN(d.getTime())) {
+            const formatter = new Intl.DateTimeFormat('ru-RU', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            });
+            profileTermsStatusEl.textContent = 'Приняты: ' + formatter.format(d);
+          } else {
+            profileTermsStatusEl.textContent = 'Приняты';
+          }
+        }
+      }
+
       return backendUser;
     } catch (e) {
       // если бэк недоступен, просто не трогаем состояние
