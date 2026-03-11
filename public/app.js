@@ -188,44 +188,6 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
-    await upsertUserInSupabase(tg);
-
-    const welcomeOverlay = document.getElementById('welcome-overlay');
-    const welcomeAccept = document.getElementById('welcome-accept');
-
-    if (welcomeOverlay && welcomeAccept && supabaseClient && window.currentUserId) {
-      try {
-        const { data: userRow } = await supabaseClient
-          .from('users')
-          .select('id, terms_accepted')
-          .eq('id', window.currentUserId)
-          .single();
-
-        const alreadyAccepted = userRow && userRow.terms_accepted;
-
-        if (!alreadyAccepted) {
-          welcomeOverlay.classList.add('welcome-overlay--visible');
-          welcomeAccept.onclick = async function () {
-            try {
-              await supabaseClient
-                .from('users')
-                .update({
-                  terms_accepted: true,
-                  terms_accepted_at: new Date().toISOString()
-                })
-                .eq('id', window.currentUserId)
-                .throwOnError();
-            } catch (e) {
-              // даже если не сохранили на сервере, скрываем, чтобы не мешать пользователю
-            }
-            welcomeOverlay.classList.remove('welcome-overlay--visible');
-          };
-        }
-        // если уже принял, просто ничего не показываем
-      } catch (e) {
-        // на ошибке тоже ничего не показываем, чтобы не мигало
-      }
-    }
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
@@ -394,4 +356,73 @@
     });
   }
 })();
+
+;(function attachWelcomeHandlers() {
+  const supabaseClient = window.supabaseClient || null;
+  const welcomeOverlay = document.getElementById('welcome-overlay');
+  const welcomeStartBtn = document.getElementById('welcome-start');
+  const welcomeSpinner = document.getElementById('welcome-spinner');
+  const balanceAmountEl = document.getElementById('balance-amount');
+
+  if (!welcomeOverlay || !welcomeStartBtn) return;
+
+  async function preloadAllData() {
+    if (!supabaseClient || !tg) return;
+
+    // создаём / обновляем пользователя и получаем баланс
+    await upsertUserInSupabase(tg);
+
+    const { data: userRow } = await supabaseClient
+      .from('users')
+      .select('id, balance, terms_accepted')
+      .eq('id', window.currentUserId)
+      .single();
+
+    if (userRow && !userRow.terms_accepted) {
+      await supabaseClient
+        .from('users')
+        .update({
+          terms_accepted: true,
+          terms_accepted_at: new Date().toISOString()
+        })
+        .eq('id', window.currentUserId);
+    }
+
+    const { data: txData } = await supabaseClient
+      .from('transactions')
+      .select('delta, comment, created_at')
+      .eq('user_id', window.currentUserId)
+      .order('created_at', { ascending: false });
+
+    window.appCache = {
+      balance:
+        userRow && typeof userRow.balance === 'number'
+          ? userRow.balance
+          : window.currentUserBalance || 0,
+      transactions: txData || []
+    };
+  }
+
+  welcomeStartBtn.addEventListener('click', async function () {
+    if (welcomeStartBtn.classList.contains('loading')) return;
+
+    welcomeStartBtn.classList.add('loading');
+    welcomeStartBtn.disabled = true;
+
+    try {
+      await preloadAllData();
+
+      if (balanceAmountEl && window.appCache) {
+        balanceAmountEl.textContent = (window.appCache.balance || 0).toFixed(0);
+      }
+    } catch (e) {
+      // если не удалось загрузить, всё равно пускаем пользователя дальше
+    } finally {
+      welcomeOverlay.style.display = 'none';
+      welcomeStartBtn.classList.remove('loading');
+      welcomeStartBtn.disabled = false;
+    }
+  });
+})();
+
 
