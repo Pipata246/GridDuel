@@ -2,20 +2,6 @@
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const isTelegramWebApp = !!tg;
 
-  const SUPABASE_URL = 'https://gmklycilmztxetbpoqij.supabase.co';
-  const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdta2x5Y2lsbXp0eGV0YnBvcWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMjQ4ODAsImV4cCI6MjA4ODgwMDg4MH0.j1BakH1ovkivrxg5ytNFguURnp8fo5Hp2HCtZXspco8';
-
-  const supabaseClient =
-    window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
-
-  // Делаем клиент доступным во всех скриптах
-  if (supabaseClient) {
-    window.supabaseClient = supabaseClient;
-  }
-
   const usernameEl = document.getElementById('username');
   const avatarEl = document.getElementById('avatar');
   const avatarInitialsEl = document.getElementById('avatar-initials');
@@ -68,39 +54,31 @@
     }
   }
 
-  async function upsertUserInSupabase(tgInstance) {
-    if (!supabaseClient || !tgInstance) return;
-
+  async function syncUserWithBackend(tgInstance) {
+    if (!tgInstance) return;
     const user = tgInstance.initDataUnsafe && tgInstance.initDataUnsafe.user;
     if (!user || !user.id) return;
 
     try {
-      await supabaseClient
-        .from('users')
-        .upsert(
-          {
-            telegram_id: user.id,
-            username: user.username || null,
-            first_name: user.first_name || null,
-            last_name: user.last_name || null,
-            language_code: user.language_code || null,
-            photo_url: user.photo_url || null,
-            last_seen_at: new Date().toISOString()
-          },
-          { onConflict: 'telegram_id' }
-        )
-        .throwOnError();
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ telegramUser: user })
+      });
 
-      const { data } = await supabaseClient
-        .from('users')
-        .select('id, balance')
-        .eq('telegram_id', user.id)
-        .single();
+      if (!response.ok) return;
+      const payload = await response.json();
+      if (!payload || !payload.ok || !payload.user) return;
 
-      window.currentUserId = data && data.id;
-      window.currentUserBalance = data && typeof data.balance === 'number' ? data.balance : 0;
+      const backendUser = payload.user;
+      window.currentUserId = backendUser.id;
+      window.currentUserBalance =
+        typeof backendUser.balance === 'number' ? backendUser.balance : 0;
+      window.currentUserTermsAccepted = !!backendUser.termsAccepted;
     } catch (e) {
-      // ignore client-side errors, Supabase is optional augmentation
+      // если бэк недоступен, просто не трогаем состояние
     }
   }
 
@@ -188,6 +166,40 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
+
+    // Логика приветственного экрана и согласия с правилами
+    const welcomeOverlay = document.getElementById('welcome-overlay');
+    const welcomeAccept = document.getElementById('welcome-accept');
+
+    if (welcomeOverlay && welcomeAccept) {
+      try {
+        await syncUserWithBackend(tg);
+
+        const alreadyAccepted = !!window.currentUserTermsAccepted;
+
+        if (!alreadyAccepted) {
+          welcomeOverlay.classList.add('welcome-overlay--visible');
+          welcomeAccept.onclick = async function () {
+            try {
+              if (!window.currentUserId) return;
+
+              await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId: window.currentUserId, action: 'accept_terms' })
+              });
+            } catch (e) {
+              // если не сохранили, просто прячем экран, чтобы не мешал
+            }
+            welcomeOverlay.classList.remove('welcome-overlay--visible');
+          };
+        }
+      } catch (e) {
+        // если не получилось дернуть БД, не блокируем пользователя
+      }
+    }
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
@@ -197,9 +209,7 @@
     }
   }
 })();
-
 ;(function attachBalanceHandlers() {
-  const supabaseClient = window.supabaseClient || null;
   const gamesPage = document.getElementById('page-games');
   const balancePage = document.getElementById('page-balance');
   const navItems = document.querySelectorAll('.nav-item');
@@ -254,31 +264,38 @@
   }
 
   async function loadBalanceAndTransactions() {
-    if (!supabaseClient || !window.currentUserId) return;
+    if (!window.currentUserId) return;
 
     try {
-      const { data: userRow } = await supabaseClient
-        .from('users')
-        .select('balance')
-        .eq('id', window.currentUserId)
-        .single();
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: window.currentUserId, action: 'load_balance' })
+      });
 
-      const { data: txData, error } = await supabaseClient
-        .from('transactions')
-        .select('delta, comment')
-        .eq('user_id', window.currentUserId)
-        .order('created_at', { ascending: false });
+      if (!response.ok) {
+        transactionsError.textContent = 'Не удалось загрузить историю транзакций.';
+        return;
+      }
 
-      if (error) throw error;
+      const payload = await response.json();
+      if (!payload || !payload.ok) {
+        transactionsError.textContent = 'Не удалось загрузить историю транзакций.';
+        return;
+      }
 
       const balance =
-        userRow && typeof userRow.balance === 'number'
-          ? userRow.balance
-          : (window.currentUserBalance || 0);
+        payload && typeof payload.balance === 'number'
+          ? payload.balance
+          : window.currentUserBalance || 0;
 
       if (balanceAmountEl) {
         balanceAmountEl.textContent = balance.toFixed(0);
       }
+
+      const txData = payload.transactions || [];
 
       transactionsList.innerHTML = '';
 
@@ -329,7 +346,7 @@
   if (transactionsClear) {
     transactionsClear.addEventListener('click', async function () {
       transactionsError.textContent = '';
-      if (!supabaseClient || !window.currentUserId) {
+      if (!window.currentUserId) {
         transactionsError.textContent = 'Не удалось определить пользователя.';
         return;
       }
@@ -341,11 +358,17 @@
       }
 
       try {
-        const { error } = await supabaseClient
-          .from('transactions')
-          .delete()
-          .eq('user_id', window.currentUserId);
-        if (error) throw error;
+        const response = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: window.currentUserId, action: 'clear_transactions' })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to clear');
+        }
 
         transactionsList.innerHTML = '';
         transactionsEmpty.style.display = 'block';
@@ -356,73 +379,4 @@
     });
   }
 })();
-
-;(function attachWelcomeHandlers() {
-  const supabaseClient = window.supabaseClient || null;
-  const welcomeOverlay = document.getElementById('welcome-overlay');
-  const welcomeStartBtn = document.getElementById('welcome-start');
-  const welcomeSpinner = document.getElementById('welcome-spinner');
-  const balanceAmountEl = document.getElementById('balance-amount');
-
-  if (!welcomeOverlay || !welcomeStartBtn) return;
-
-  async function preloadAllData() {
-    if (!supabaseClient || !tg) return;
-
-    // создаём / обновляем пользователя и получаем баланс
-    await upsertUserInSupabase(tg);
-
-    const { data: userRow } = await supabaseClient
-      .from('users')
-      .select('id, balance, terms_accepted')
-      .eq('id', window.currentUserId)
-      .single();
-
-    if (userRow && !userRow.terms_accepted) {
-      await supabaseClient
-        .from('users')
-        .update({
-          terms_accepted: true,
-          terms_accepted_at: new Date().toISOString()
-        })
-        .eq('id', window.currentUserId);
-    }
-
-    const { data: txData } = await supabaseClient
-      .from('transactions')
-      .select('delta, comment, created_at')
-      .eq('user_id', window.currentUserId)
-      .order('created_at', { ascending: false });
-
-    window.appCache = {
-      balance:
-        userRow && typeof userRow.balance === 'number'
-          ? userRow.balance
-          : window.currentUserBalance || 0,
-      transactions: txData || []
-    };
-  }
-
-  welcomeStartBtn.addEventListener('click', async function () {
-    if (welcomeStartBtn.classList.contains('loading')) return;
-
-    welcomeStartBtn.classList.add('loading');
-    welcomeStartBtn.disabled = true;
-
-    try {
-      await preloadAllData();
-
-      if (balanceAmountEl && window.appCache) {
-        balanceAmountEl.textContent = (window.appCache.balance || 0).toFixed(0);
-      }
-    } catch (e) {
-      // если не удалось загрузить, всё равно пускаем пользователя дальше
-    } finally {
-      welcomeOverlay.style.display = 'none';
-      welcomeStartBtn.classList.remove('loading');
-      welcomeStartBtn.disabled = false;
-    }
-  });
-})();
-
 
