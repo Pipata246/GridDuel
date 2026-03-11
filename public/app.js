@@ -431,6 +431,13 @@
   applyProfileFromCache();
 
   let copySound;
+  try {
+    copySound = new Audio('/sounds/uved.wav');
+    // Прогреваем, чтобы снизить задержку при первом воспроизведении
+    copySound.load();
+  } catch (e) {
+    copySound = null;
+  }
 
   if (profileRefCopyBtn && profileRefCodeEl) {
     profileRefCopyBtn.addEventListener('click', function () {
@@ -448,11 +455,8 @@
       }, 1500);
 
       // Звук уведомления о копировании
-      if (soundToggle && soundToggle.checked) {
+      if (soundToggle && soundToggle.checked && copySound) {
         try {
-          if (!copySound) {
-            copySound = new Audio('/sounds/uved.wav');
-          }
           const vol = soundVolume ? Number(soundVolume.value) : 80;
           const volume =
             Number.isNaN(vol) ? 0.8 : Math.max(0, Math.min(1, vol / 100));
@@ -504,7 +508,13 @@
 
   // Звук меню навигации
   (function initNavSound() {
-    let navSound;
+    let navSound = null;
+    try {
+      navSound = new Audio('/sounds/menu.mp3');
+      navSound.load();
+    } catch (e) {
+      navSound = null;
+    }
 
     function getVolume() {
       if (!soundVolume) return 0.8;
@@ -517,12 +527,8 @@
       if (!soundToggle || !soundToggle.checked) return;
 
       try {
-        if (!navSound) {
-          navSound = new Audio('/sounds/menu.mp3');
-          navSound.volume = getVolume();
-        } else {
-          navSound.volume = getVolume();
-        }
+        if (!navSound) return;
+        navSound.volume = getVolume();
 
         navSound.currentTime = 0;
         navSound.play().catch(function () {});
@@ -534,7 +540,13 @@
 
   // Звук tap при клике по всем элементам, кроме навигации и кнопки «Скопировать»
   (function initTapSound() {
-    let tapSound;
+    let tapSound = null;
+    try {
+      tapSound = new Audio('/sounds/tap.wav');
+      tapSound.load();
+    } catch (e) {
+      tapSound = null;
+    }
 
     function getVolume() {
       if (!soundVolume) return 0.8;
@@ -544,11 +556,8 @@
     }
 
     function playTapSound() {
-      if (!soundToggle || !soundToggle.checked) return;
+      if (!soundToggle || !soundToggle.checked || !tapSound) return;
       try {
-        if (!tapSound) {
-          tapSound = new Audio('/sounds/tap.wav');
-        }
         tapSound.volume = getVolume();
         tapSound.currentTime = 0;
         tapSound.play().catch(function () {});
