@@ -93,7 +93,7 @@ body {
 
 .header {
   margin-top: 0;
-  padding: 70px 20px 16px;
+  padding: 90px 20px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -114,7 +114,7 @@ body {
   font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-platinum);
+  color: var(--color-liberty);
 }
 
 .header-user {
@@ -126,7 +126,7 @@ body {
 .header-username {
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-platinum);
+  color: var(--color-liberty);
 }
 
 .header-avatar-wrapper {
@@ -177,12 +177,12 @@ body {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--color-platinum);
+  color: var(--color-liberty);
 }
 
 .section-subtitle {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--color-royal-purple);
   margin-bottom: 16px;
 }
 
@@ -201,12 +201,12 @@ body {
 .empty-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-platinum);
+  color: var(--color-liberty);
 }
 
 .empty-text {
   font-size: 13px;
-  color: rgba(237, 221, 236, 0.9);
+  color: var(--color-royal-purple);
 }
 
 .nav {
