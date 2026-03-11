@@ -8,6 +8,8 @@ create table if not exists public.users (
   language_code text,
   photo_url text,
   balance numeric(18, 2) not null default 0,
+  referral_code text not null default
+    ('X' || substring(encode(gen_random_bytes(5), 'base64') from 1 for 5)),
   terms_accepted boolean not null default false,
   terms_accepted_at timestamptz,
   created_at timestamptz not null default now(),
