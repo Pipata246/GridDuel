@@ -430,6 +430,13 @@
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(code).catch(function () {});
       }
+
+      const toast = document.getElementById('copy-toast');
+      if (!toast) return;
+      toast.classList.add('toast--visible');
+      setTimeout(function () {
+        toast.classList.remove('toast--visible');
+      }, 1500);
     });
   }
 
