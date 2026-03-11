@@ -30,27 +30,25 @@ body {
   color: var(--text-main);
   display: flex;
   justify-content: center;
+  align-items: stretch;
 }
 
 .app {
   width: 100%;
-  max-width: 480px;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* делаем чуть больше отступ сверху, чтобы отделиться от шапки Telegram */
-  padding: 18px 12px 20px;
+  padding: 0;
 }
 
 .app-shell {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
+  border-radius: 0;
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(12, 10, 30, 0.98));
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(15, 23, 42, 0.9);
+  box-shadow: none;
   overflow: hidden;
   position: relative;
 }

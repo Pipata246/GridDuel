@@ -15,9 +15,10 @@
 
   if (tg) {
     tg.ready();
-    // Расширяем WebApp на всю высоту экрана Telegram
+    // Расширяем WebApp на всю высоту окна Telegram
     try {
       tg.expand();
+      tg.setBackgroundColor('#080714');
     } catch (e) {
       // ignore
     }
