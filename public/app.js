@@ -11,6 +11,11 @@
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
 
+  // Делаем клиент доступным во всех скриптах
+  if (supabaseClient) {
+    window.supabaseClient = supabaseClient;
+  }
+
   const usernameEl = document.getElementById('username');
   const avatarEl = document.getElementById('avatar');
   const avatarInitialsEl = document.getElementById('avatar-initials');
@@ -195,6 +200,7 @@
 })();
 
 ;(function attachBalanceHandlers() {
+  const supabaseClient = window.supabaseClient || null;
   const gamesPage = document.getElementById('page-games');
   const balancePage = document.getElementById('page-balance');
   const navItems = document.querySelectorAll('.nav-item');
