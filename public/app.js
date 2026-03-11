@@ -15,6 +15,12 @@
 
   if (tg) {
     tg.ready();
+    // Расширяем WebApp на всю высоту экрана Telegram
+    try {
+      tg.expand();
+    } catch (e) {
+      // ignore
+    }
 
     const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
     if (user) {

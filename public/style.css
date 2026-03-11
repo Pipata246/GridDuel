@@ -38,7 +38,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 12px 12px 20px;
+  /* делаем чуть больше отступ сверху, чтобы отделиться от шапки Telegram */
+  padding: 18px 12px 20px;
 }
 
 .app-shell {
