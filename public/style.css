@@ -413,15 +413,15 @@ body {
 .welcome-overlay {
   position: fixed;
   inset: 0;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   background: rgba(2, 17, 31, 0.45);
   z-index: 40;
 }
 
-.welcome-overlay--hidden {
-  display: none;
+.welcome-overlay--visible {
+  display: flex;
 }
 
 .welcome-card {

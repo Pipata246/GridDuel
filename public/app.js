@@ -193,7 +193,7 @@
     const welcomeOverlay = document.getElementById('welcome-overlay');
     const welcomeAccept = document.getElementById('welcome-accept');
 
-    if (welcomeOverlay && welcomeAccept) {
+    if (welcomeOverlay && welcomeAccept && supabaseClient && window.currentUserId) {
       try {
         const { data: userRow } = await supabaseClient
           .from('users')
@@ -203,10 +203,8 @@
 
         const alreadyAccepted = userRow && userRow.terms_accepted;
 
-        if (alreadyAccepted) {
-          welcomeOverlay.classList.add('welcome-overlay--hidden');
-        } else {
-          welcomeOverlay.classList.remove('welcome-overlay--hidden');
+        if (!alreadyAccepted) {
+          welcomeOverlay.classList.add('welcome-overlay--visible');
           welcomeAccept.onclick = async function () {
             try {
               await supabaseClient
@@ -217,14 +215,15 @@
                 })
                 .eq('id', window.currentUserId)
                 .throwOnError();
-              welcomeOverlay.classList.add('welcome-overlay--hidden');
             } catch (e) {
-              // если не удалось обновить, оставляем экран
+              // даже если не сохранили на сервере, скрываем, чтобы не мешать пользователю
             }
+            welcomeOverlay.classList.remove('welcome-overlay--visible');
           };
         }
+        // если уже принял, просто ничего не показываем
       } catch (e) {
-        // если не смогли прочитать пользователя, оставляем оверлей
+        // на ошибке тоже ничего не показываем, чтобы не мигало
       }
     }
   } else {
