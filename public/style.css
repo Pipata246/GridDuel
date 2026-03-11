@@ -245,10 +245,19 @@ body {
   gap: 6px;
 }
 
-.balance-currency {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
+.balance-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balance-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--color-ocean);
+}
 }
 
 .balance-actions {
@@ -398,6 +407,36 @@ body {
   margin-top: 6px;
   font-size: 12px;
   color: #b91c1c;
+}
+
+.alert-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 17, 31, 0.35);
+  z-index: 30;
+}
+
+.alert-modal--open {
+  display: flex;
+}
+
+.alert-modal-inner {
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 18px 14px;
+  border-radius: 18px;
+  background:
+    linear-gradient(to bottom, rgba(243, 247, 253, 0.98), rgba(226, 235, 247, 0.98));
+  box-shadow: 0 20px 50px rgba(1, 22, 43, 0.55);
+}
+
+.alert-modal-message {
+  font-size: 14px;
+  color: var(--text-main);
+  margin-bottom: 12px;
 }
 
 .nav {

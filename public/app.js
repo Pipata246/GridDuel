@@ -88,11 +88,12 @@
 
       const { data } = await supabaseClient
         .from('users')
-        .select('id')
+        .select('id, balance')
         .eq('telegram_id', user.id)
         .single();
 
       window.currentUserId = data && data.id;
+      window.currentUserBalance = data && typeof data.balance === 'number' ? data.balance : 0;
     } catch (e) {
       // ignore client-side errors, Supabase is optional augmentation
     }
@@ -205,6 +206,9 @@
   const transactionsList = document.getElementById('transactions-list');
   const transactionsEmpty = document.getElementById('transactions-empty');
   const transactionsError = document.getElementById('transactions-error');
+  const alertModal = document.getElementById('alert-modal');
+  const alertModalMessage = document.getElementById('alert-modal-message');
+  const alertModalClose = document.getElementById('alert-modal-close');
 
   function setActivePage(index) {
     if (!gamesPage || !balancePage) return;
@@ -227,10 +231,33 @@
     });
   });
 
+  function showAlert(message) {
+    if (!alertModal || !alertModalMessage) return;
+    alertModalMessage.textContent = message;
+    alertModal.classList.add('alert-modal--open');
+  }
+
+  if (alertModal && alertModalClose) {
+    alertModalClose.addEventListener('click', function () {
+      alertModal.classList.remove('alert-modal--open');
+    });
+    alertModal.addEventListener('click', function (e) {
+      if (e.target === alertModal) {
+        alertModal.classList.remove('alert-modal--open');
+      }
+    });
+  }
+
   async function loadBalanceAndTransactions() {
     if (!supabaseClient || !window.currentUserId) return;
 
     try {
+      const { data: userRow } = await supabaseClient
+        .from('users')
+        .select('balance')
+        .eq('id', window.currentUserId)
+        .single();
+
       const { data: txData, error } = await supabaseClient
         .from('transactions')
         .select('delta, comment')
@@ -239,10 +266,10 @@
 
       if (error) throw error;
 
-      let balance = 0;
-      (txData || []).forEach(function (t) {
-        balance += Number(t.delta) || 0;
-      });
+      const balance =
+        userRow && typeof userRow.balance === 'number'
+          ? userRow.balance
+          : (window.currentUserBalance || 0);
 
       if (balanceAmountEl) {
         balanceAmountEl.textContent = balance.toFixed(0);
@@ -304,7 +331,7 @@
 
       const hasTransactions = transactionsList && transactionsList.children.length > 0;
       if (!hasTransactions) {
-        transactionsError.textContent = 'У тебя ещё нет транзакций.';
+        showAlert('У тебя ещё нет транзакций, чтобы очистить историю.');
         return;
       }
 

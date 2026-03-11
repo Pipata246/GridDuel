@@ -7,6 +7,7 @@ create table if not exists public.users (
   last_name text,
   language_code text,
   photo_url text,
+  balance numeric(18, 2) not null default 0,
   created_at timestamptz not null default now(),
   last_seen_at timestamptz not null default now()
 );

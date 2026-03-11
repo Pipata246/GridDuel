@@ -49,7 +49,16 @@
                 <div class="balance-label">Текущий баланс</div>
                 <div class="balance-value">
                   <span id="balance-amount">0</span>
-                  <span class="balance-currency">звёзд</span>
+                  <span class="balance-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 3.5 9.7 8.4l-5.2.4 4 3.3-1.2 5 4.7-2.8 4.7 2.8-1.2-5 4-3.3-5.2-.4L12 3.5Z"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
                 </div>
               </div>
 
@@ -77,6 +86,13 @@
               </div>
               <button class="btn-outline" type="button" id="transactions-clear">Очистить историю</button>
               <div class="transactions-error" id="transactions-error"></div>
+            </div>
+          </section>
+
+          <section class="alert-modal" id="alert-modal">
+            <div class="alert-modal-inner">
+              <div class="alert-modal-message" id="alert-modal-message"></div>
+              <button class="btn-outline" type="button" id="alert-modal-close">Понятно</button>
             </div>
           </section>
 
