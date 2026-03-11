@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
 :root {
   color-scheme: dark;
   --bg-root: #080714;
@@ -24,7 +26,7 @@ body {
     radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 55%),
     radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.15), transparent 60%),
     var(--bg-root);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
   color: var(--text-main);
   display: flex;
   justify-content: center;
