@@ -181,6 +181,49 @@ body {
   display: block;
 }
 
+.matches-card {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  padding: 18px 16px 16px;
+  border-radius: 18px;
+  background:
+    linear-gradient(to bottom right, rgba(255, 255, 255, 0.9), rgba(226, 235, 247, 0.96));
+  border: 1px solid rgba(148, 162, 191, 0.6);
+  box-shadow: 0 18px 40px rgba(1, 22, 43, 0.15);
+}
+
+.matches-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.matches-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-deep-navy);
+}
+
+.matches-subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.matches-body {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.matches-empty-note {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
 .profile-card {
   margin-bottom: 18px;
   padding: 18px 18px 14px;

@@ -313,6 +313,7 @@
 })();
 ;(function attachBalanceHandlers() {
   const gamesPage = document.getElementById('page-games');
+  const matchesPage = document.getElementById('page-matches');
   const balancePage = document.getElementById('page-balance');
   const profilePage = document.getElementById('page-profile');
   const navItems = document.querySelectorAll('.nav-item');
@@ -329,9 +330,10 @@
   const alertModalClose = document.getElementById('alert-modal-close');
 
   function setActivePage(index) {
-    if (!gamesPage || !balancePage || !profilePage) return;
+    if (!gamesPage || !matchesPage || !balancePage || !profilePage) return;
 
     gamesPage.classList.remove('page--active');
+    matchesPage.classList.remove('page--active');
     balancePage.classList.remove('page--active');
     profilePage.classList.remove('page--active');
 
@@ -339,6 +341,8 @@
       gamesPage.classList.add('page--active');
     } else if (index === 1) {
       balancePage.classList.add('page--active');
+    } else if (index === 2) {
+      matchesPage.classList.add('page--active');
     } else if (index === 3) {
       profilePage.classList.add('page--active');
     } else {
