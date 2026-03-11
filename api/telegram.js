@@ -26,15 +26,15 @@ export default async function handler(req, res) {
 
     if (text === '/start') {
       const replyText =
-        'Это приложение с играми на звезды.\n\n' +
-        'Здесь будут:\n' +
-        '— разные режимы игр;\n' +
-        '— онлайн-игры с другими игроками;\n' +
-        '— игры против бота.\n\n' +
-        'Нажми кнопку ниже, чтобы открыть приложение.';
+        '👋 Привет! Это GridDuel — мини‑игра с PvP‑дуэлями за ⭐️ звёзды.\n\n' +
+        'Здесь ты сможешь:\n' +
+        '• ⚔️ Соревноваться с другими игроками\n' +
+        '• 📈 Следить за балансом и историей матчей\n' +
+        '• 🧾 Смотреть свою статистику и профиль\n\n' +
+        'Нажми кнопку ниже, чтобы открыть игру и продолжить в мини‑приложении.';
 
       // Актуальный URL мини-приложения
-      const webAppUrl = 'https://grid-duel.vercel.app/';
+      const webAppUrl = process.env.TELEGRAM_WEBAPP_URL || 'https://grid-duel.vercel.app/';
 
       await sendMessage(token, chatId, replyText, {
         reply_markup: {
