@@ -75,10 +75,11 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding-top: 32px;
 }
 
 .header {
-  padding: 14px 18px 10px;
+  padding: 10px 18px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
