@@ -77,6 +77,35 @@
       window.currentUserBalance =
         typeof backendUser.balance === 'number' ? backendUser.balance : 0;
       window.currentUserTermsAccepted = !!backendUser.termsAccepted;
+
+      const welcomeOverlay = document.getElementById('welcome-overlay');
+      const welcomeAccept = document.getElementById('welcome-accept');
+
+      if (welcomeOverlay && welcomeAccept) {
+        if (!window.currentUserTermsAccepted) {
+          welcomeOverlay.classList.add('welcome-overlay--visible');
+          welcomeAccept.onclick = async function () {
+            try {
+              await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  userId: window.currentUserId,
+                  action: 'accept_terms'
+                })
+              });
+              window.currentUserTermsAccepted = true;
+            } catch (e) {
+              // если не сохранили, просто прячем экран, чтобы не мешал
+            }
+            welcomeOverlay.classList.remove('welcome-overlay--visible');
+          };
+        } else {
+          welcomeOverlay.classList.remove('welcome-overlay--visible');
+        }
+      }
     } catch (e) {
       // если бэк недоступен, просто не трогаем состояние
     }
