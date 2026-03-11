@@ -68,44 +68,16 @@
         body: JSON.stringify({ telegramUser: user })
       });
 
-      if (!response.ok) return;
+      if (!response.ok) return null;
       const payload = await response.json();
-      if (!payload || !payload.ok || !payload.user) return;
+      if (!payload || !payload.ok || !payload.user) return null;
 
       const backendUser = payload.user;
       window.currentUserId = backendUser.id;
       window.currentUserBalance =
         typeof backendUser.balance === 'number' ? backendUser.balance : 0;
       window.currentUserTermsAccepted = !!backendUser.termsAccepted;
-
-      const welcomeOverlay = document.getElementById('welcome-overlay');
-      const welcomeAccept = document.getElementById('welcome-accept');
-
-      if (welcomeOverlay && welcomeAccept) {
-        if (!window.currentUserTermsAccepted) {
-          welcomeOverlay.classList.add('welcome-overlay--visible');
-          welcomeAccept.onclick = async function () {
-            try {
-              await fetch('/api/user', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  userId: window.currentUserId,
-                  action: 'accept_terms'
-                })
-              });
-              window.currentUserTermsAccepted = true;
-            } catch (e) {
-              // если не сохранили, просто прячем экран, чтобы не мешал
-            }
-            welcomeOverlay.classList.remove('welcome-overlay--visible');
-          };
-        } else {
-          welcomeOverlay.classList.remove('welcome-overlay--visible');
-        }
-      }
+      return backendUser;
     } catch (e) {
       // если бэк недоступен, просто не трогаем состояние
     }
@@ -195,8 +167,81 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
-    // Просто синхронизируем пользователя с бэком без доп. экранов
-    await syncUserWithBackend(tg);
+
+    const welcomeOverlay = document.getElementById('welcome-overlay');
+    const welcomeAccept = document.getElementById('welcome-accept');
+
+    if (welcomeOverlay && welcomeAccept) {
+      const welcomeLoader = document.getElementById('welcome-loader');
+
+      const startApp = async function () {
+        if (welcomeAccept.disabled) return;
+        welcomeAccept.disabled = true;
+        welcomeOverlay.classList.add('welcome-overlay--loading');
+
+        try {
+          const backendUser = await syncUserWithBackend(tg);
+
+          if (backendUser && !backendUser.termsAccepted && window.currentUserId) {
+            try {
+              await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  userId: window.currentUserId,
+                  action: 'accept_terms'
+                })
+              });
+              window.currentUserTermsAccepted = true;
+            } catch (e) {
+              // игнорируем, не блокируем старт
+            }
+          }
+
+          if (window.currentUserId) {
+            try {
+              const response = await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  userId: window.currentUserId,
+                  action: 'load_balance'
+                })
+              });
+
+              if (response.ok) {
+                const payload = await response.json();
+                if (payload && payload.ok) {
+                  const balance =
+                    payload && typeof payload.balance === 'number'
+                      ? payload.balance
+                      : window.currentUserBalance || 0;
+
+                  window.currentUserBalance = balance;
+                  window.cachedTransactions = payload.transactions || [];
+
+                  const balanceAmountEl = document.getElementById('balance-amount');
+                  if (balanceAmountEl) {
+                    balanceAmountEl.textContent = balance.toFixed(0);
+                  }
+                }
+              }
+            } catch (e) {
+              // если не загрузили баланс, просто идём дальше
+            }
+          }
+        } finally {
+          welcomeOverlay.classList.add('welcome-overlay--hidden');
+          welcomeOverlay.classList.remove('welcome-overlay--loading');
+        }
+      };
+
+      welcomeAccept.addEventListener('click', startApp);
+    }
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
@@ -293,6 +338,7 @@
       }
 
       const txData = payload.transactions || [];
+      window.cachedTransactions = txData;
 
       transactionsList.innerHTML = '';
 

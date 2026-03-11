@@ -413,15 +413,19 @@ body {
 .welcome-overlay {
   position: fixed;
   inset: 0;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(2, 17, 31, 0.45);
   z-index: 40;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
 }
 
-.welcome-overlay--visible {
-  display: flex;
+.welcome-overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .welcome-card {
@@ -467,6 +471,34 @@ body {
   color: #f9fafb;
   background: linear-gradient(135deg, var(--color-steel-blue), var(--color-ocean));
   box-shadow: 0 10px 25px rgba(0, 56, 90, 0.45);
+}
+
+.welcome-loader {
+  margin: 18px auto 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 3px solid rgba(0, 56, 90, 0.18);
+  border-top-color: var(--color-ocean);
+  animation: welcome-spin 0.8s linear infinite;
+  display: none;
+}
+
+.welcome-overlay--loading .welcome-loader {
+  display: block;
+}
+
+.welcome-overlay--loading .welcome-button {
+  opacity: 0.7;
+}
+
+@keyframes welcome-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .alert-modal {
