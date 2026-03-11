@@ -2,24 +2,26 @@
 
 :root {
   color-scheme: dark;
-  /* Основная палитра из референса */
-  --color-cream: #fffbdB;
-  --color-lilac: #cdc7e5;
-  --color-violet: #7776bc;
+  /* Основная палитра из нового референса */
+  --color-platinum: #edddec;
+  --color-african-violet: #a48eca;
+  --color-liberty: #60509d;
+  --color-royal-purple: #765b82;
+  --color-dark-lavender: #6d588b;
 
   /* Производные */
-  --bg-root: #141326;
-  --bg-elevated: #1c1b36;
-  --bg-elevated-soft: #181732;
-  --accent: var(--color-violet);
-  --accent-soft: rgba(119, 118, 188, 0.2);
-  --accent-strong: #5f5bb0;
-  --accent-alt: #fbbf24;
-  --accent-alt-soft: rgba(251, 191, 36, 0.2);
-  --text-main: #f9fafb;
-  --text-muted: #b0b4d4;
-  --border-subtle: rgba(205, 199, 229, 0.55);
-  --nav-bg: rgba(7, 6, 20, 0.96);
+  --bg-root: #171127;
+  --bg-elevated: #211735;
+  --bg-elevated-soft: #1a132d;
+  --accent: var(--color-african-violet);
+  --accent-soft: rgba(164, 142, 202, 0.28);
+  --accent-strong: var(--color-liberty);
+  --accent-alt: var(--color-platinum);
+  --accent-alt-soft: rgba(237, 221, 236, 0.4);
+  --text-main: #fdfbff;
+  --text-muted: #c4bdd9;
+  --border-subtle: rgba(164, 142, 202, 0.55);
+  --nav-bg: rgba(12, 8, 24, 0.98);
 }
 
 * {
@@ -31,10 +33,10 @@
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 251, 219, 0.35), transparent 55%),
-    radial-gradient(circle at 100% 0%, rgba(205, 199, 229, 0.32), transparent 55%),
-    radial-gradient(circle at 50% 100%, rgba(119, 118, 188, 0.3), transparent 60%),
-    linear-gradient(145deg, #07051a, #141326 38%, #181732 100%);
+    radial-gradient(circle at 0% 0%, rgba(237, 221, 236, 0.5), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(164, 142, 202, 0.45), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(96, 80, 157, 0.45), transparent 60%),
+    linear-gradient(145deg, #120a22, #171127 38%, #1f1533 100%);
   font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
   color: var(--text-main);
   display: flex;
@@ -56,10 +58,11 @@ body {
   display: flex;
   flex-direction: column;
   border-radius: 0;
-  background: radial-gradient(circle at 10% -10%, rgba(56, 189, 248, 0.12), transparent 55%),
-    radial-gradient(circle at 110% 0%, rgba(244, 114, 182, 0.16), transparent 60%),
-    linear-gradient(150deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.98));
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.9);
+  background:
+    radial-gradient(circle at 10% -10%, rgba(237, 221, 236, 0.3), transparent 55%),
+    radial-gradient(circle at 110% 0%, rgba(164, 142, 202, 0.36), transparent 60%),
+    linear-gradient(150deg, rgba(23, 16, 45, 0.98), rgba(16, 11, 33, 0.98));
+  box-shadow: 0 24px 80px rgba(9, 6, 24, 0.95);
   overflow: hidden;
   position: relative;
 }
@@ -70,7 +73,7 @@ body {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(236, 72, 153, 0.4));
+  background: linear-gradient(135deg, rgba(164, 142, 202, 0.7), rgba(109, 88, 139, 0.7));
   opacity: 0.35;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -94,11 +97,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(205, 199, 229, 0.42);
+  border-bottom: 1px solid rgba(164, 142, 202, 0.45);
   backdrop-filter: blur(18px);
   background:
-    radial-gradient(circle at -10% -40%, rgba(255, 251, 219, 0.4), transparent 55%),
-    linear-gradient(to bottom, rgba(20, 19, 38, 0.98), rgba(14, 13, 30, 0.95));
+    radial-gradient(circle at -10% -40%, rgba(237, 221, 236, 0.48), transparent 55%),
+    linear-gradient(to bottom, rgba(33, 23, 61, 0.98), rgba(23, 16, 45, 0.96));
 }
 
 .header-left {
@@ -111,7 +114,7 @@ body {
   font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 251, 219, 0.9);
+  color: var(--color-platinum);
 }
 
 .header-user {
@@ -123,7 +126,7 @@ body {
 .header-username {
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-cream);
+  color: var(--color-platinum);
 }
 
 .header-avatar-wrapper {
@@ -138,9 +141,17 @@ body {
   height: 34px;
   border-radius: 999px;
   overflow: hidden;
-  border: 1px solid rgba(205, 199, 229, 0.8);
+  border: 1px solid rgba(164, 142, 202, 0.9);
   background:
-    conic-gradient(from 220deg, #fffbdB, #cdc7e5, #7776bc, #cdc7e5, #fffbdB);
+    conic-gradient(
+      from 220deg,
+      var(--color-platinum),
+      var(--color-african-violet),
+      var(--color-liberty),
+      var(--color-royal-purple),
+      var(--color-dark-lavender),
+      var(--color-platinum)
+    );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,7 +177,7 @@ body {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--color-cream);
+  color: var(--color-platinum);
 }
 
 .section-subtitle {
@@ -179,10 +190,10 @@ body {
   border-radius: 18px;
   padding: 20px 16px;
   background:
-    linear-gradient(to bottom, rgba(255, 251, 219, 0.18), transparent 55%),
-    linear-gradient(to top right, rgba(205, 199, 229, 0.28), transparent 60%),
-    linear-gradient(145deg, rgba(24, 23, 50, 0.98), rgba(20, 19, 44, 0.98));
-  border: 1px solid rgba(205, 199, 229, 0.7);
+    linear-gradient(to bottom, rgba(237, 221, 236, 0.24), transparent 55%),
+    linear-gradient(to top right, rgba(164, 142, 202, 0.32), transparent 60%),
+    linear-gradient(145deg, rgba(33, 23, 61, 0.98), rgba(27, 19, 53, 0.98));
+  border: 1px solid rgba(164, 142, 202, 0.8);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -191,12 +202,12 @@ body {
 .empty-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-cream);
+  color: var(--color-platinum);
 }
 
 .empty-text {
   font-size: 13px;
-  color: rgba(224, 231, 255, 0.9);
+  color: rgba(237, 221, 236, 0.9);
 }
 
 .nav {
@@ -206,9 +217,9 @@ body {
   bottom: 0;
   padding: 8px 16px 14px;
   background:
-    radial-gradient(circle at 0% 100%, rgba(119, 118, 188, 0.32), transparent 55%),
-    linear-gradient(to top, var(--nav-bg), rgba(7, 6, 20, 0.8));
-  border-top: 1px solid rgba(119, 118, 188, 0.7);
+    radial-gradient(circle at 0% 100%, rgba(96, 80, 157, 0.4), transparent 55%),
+    linear-gradient(to top, var(--nav-bg), rgba(10, 6, 24, 0.9));
+  border-top: 1px solid rgba(96, 80, 157, 0.85);
   display: flex;
   gap: 10px;
 }
@@ -218,11 +229,11 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   width: 100%;
-  background: linear-gradient(135deg, rgba(14, 13, 30, 0.98), rgba(16, 15, 34, 0.98));
+  background: linear-gradient(135deg, rgba(23, 16, 45, 0.98), rgba(16, 11, 33, 0.98));
   border-radius: 16px;
   padding: 4px;
-  box-shadow: 0 18px 45px rgba(7, 6, 20, 0.95);
-  border: 1px solid rgba(119, 118, 188, 0.9);
+  box-shadow: 0 18px 45px rgba(7, 4, 20, 0.96);
+  border: 1px solid rgba(164, 142, 202, 0.95);
 }
 
 .nav-item {
@@ -240,7 +251,7 @@ body {
 }
 
 .nav-item--active {
-  background: linear-gradient(135deg, rgba(205, 199, 229, 0.65), rgba(119, 118, 188, 0.8));
+  background: linear-gradient(135deg, rgba(237, 221, 236, 0.8), rgba(164, 142, 202, 0.95));
   color: var(--text-main);
 }
 
