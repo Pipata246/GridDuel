@@ -1,0 +1,17 @@
+{
+  "name": "telegram-stars-games-bot",
+  "version": "1.0.0",
+  "description": "Простой Telegram-бот для игр на звезды, подготовленный для деплоя на Vercel.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT"
+}
