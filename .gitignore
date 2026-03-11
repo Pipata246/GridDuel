@@ -1,0 +1,9 @@
+.env
+.env.local
+.env.*.local
+
+# Node / Vercel cache
+node_modules
+.vercel
+.next
+
