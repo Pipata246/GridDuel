@@ -85,6 +85,14 @@
           { onConflict: 'telegram_id' }
         )
         .throwOnError();
+
+      const { data } = await supabaseClient
+        .from('users')
+        .select('id')
+        .eq('telegram_id', user.id)
+        .single();
+
+      window.currentUserId = data && data.id;
     } catch (e) {
       // ignore client-side errors, Supabase is optional augmentation
     }
@@ -182,6 +190,138 @@
     if (avatarInitialsEl) {
       avatarInitialsEl.textContent = 'SD';
     }
+  }
+})();
+
+;(function attachBalanceHandlers() {
+  const gamesPage = document.getElementById('page-games');
+  const balancePage = document.getElementById('page-balance');
+  const navItems = document.querySelectorAll('.nav-item');
+  const balanceAmountEl = document.getElementById('balance-amount');
+  const transactionsPanel = document.getElementById('transactions-panel');
+  const transactionsOpen = document.getElementById('transactions-open');
+  const transactionsClose = document.getElementById('transactions-close');
+  const transactionsClear = document.getElementById('transactions-clear');
+  const transactionsList = document.getElementById('transactions-list');
+  const transactionsEmpty = document.getElementById('transactions-empty');
+  const transactionsError = document.getElementById('transactions-error');
+
+  function setActivePage(index) {
+    if (!gamesPage || !balancePage) return;
+    if (index === 1) {
+      gamesPage.classList.remove('page--active');
+      balancePage.classList.add('page--active');
+    } else {
+      balancePage.classList.remove('page--active');
+      gamesPage.classList.add('page--active');
+    }
+  }
+
+  navItems.forEach(function (btn, index) {
+    btn.addEventListener('click', function () {
+      navItems.forEach(function (b) {
+        b.classList.remove('nav-item--active');
+      });
+      btn.classList.add('nav-item--active');
+      setActivePage(index);
+    });
+  });
+
+  async function loadBalanceAndTransactions() {
+    if (!supabaseClient || !window.currentUserId) return;
+
+    try {
+      const { data: txData, error } = await supabaseClient
+        .from('transactions')
+        .select('delta, comment')
+        .eq('user_id', window.currentUserId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      let balance = 0;
+      (txData || []).forEach(function (t) {
+        balance += Number(t.delta) || 0;
+      });
+
+      if (balanceAmountEl) {
+        balanceAmountEl.textContent = balance.toFixed(0);
+      }
+
+      transactionsList.innerHTML = '';
+
+      if (!txData || txData.length === 0) {
+        transactionsEmpty.style.display = 'block';
+      } else {
+        transactionsEmpty.style.display = 'none';
+        txData.forEach(function (t) {
+          const row = document.createElement('div');
+          row.className = 'transactions-item';
+
+          const amount = document.createElement('div');
+          amount.className =
+            'transactions-item-amount ' +
+            (t.delta >= 0 ? 'transactions-item-amount--positive' : 'transactions-item-amount--negative');
+          const sign = t.delta > 0 ? '+' : '';
+          amount.textContent = sign + Number(t.delta).toFixed(0);
+
+          const comment = document.createElement('div');
+          comment.className = 'transactions-item-comment';
+          comment.textContent = t.comment || '';
+
+          row.appendChild(amount);
+          row.appendChild(comment);
+          transactionsList.appendChild(row);
+        });
+      }
+
+      transactionsError.textContent = '';
+    } catch (e) {
+      transactionsError.textContent = 'Не удалось загрузить историю транзакций.';
+    }
+  }
+
+  if (transactionsOpen && transactionsPanel) {
+    transactionsOpen.addEventListener('click', function () {
+      transactionsPanel.classList.add('transactions-panel--open');
+      loadBalanceAndTransactions();
+    });
+  }
+
+  if (transactionsClose && transactionsPanel) {
+    transactionsClose.addEventListener('click', function () {
+      transactionsPanel.classList.remove('transactions-panel--open');
+    });
+  }
+
+  if (transactionsClear) {
+    transactionsClear.addEventListener('click', async function () {
+      transactionsError.textContent = '';
+      if (!supabaseClient || !window.currentUserId) {
+        transactionsError.textContent = 'Не удалось определить пользователя.';
+        return;
+      }
+
+      const hasTransactions = transactionsList && transactionsList.children.length > 0;
+      if (!hasTransactions) {
+        transactionsError.textContent = 'У тебя ещё нет транзакций.';
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('transactions')
+          .delete()
+          .eq('user_id', window.currentUserId);
+        if (error) throw error;
+
+        transactionsList.innerHTML = '';
+        transactionsEmpty.style.display = 'block';
+        if (balanceAmountEl) balanceAmountEl.textContent = '0';
+      } catch (e) {
+        transactionsError.textContent = 'Не удалось очистить историю.';
+      }
+    });
   }
 })();
 

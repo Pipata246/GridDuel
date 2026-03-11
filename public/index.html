@@ -28,19 +28,57 @@
           </header>
 
           <main class="content">
-            <div class="section-title">Игры</div>
-            <div class="section-subtitle">
-              Выбирай режим и играй за звезды. Пока что игр нет — скоро добавим первые режимы.
-            </div>
+            <section class="page page--active" id="page-games">
+              <div class="section-title">Игры</div>
+              <div class="section-subtitle">
+                Выбирай режим и играй за звезды. Пока что игр нет — скоро добавим первые режимы.
+              </div>
 
-            <section class="empty-card">
-              <div class="empty-title">Игр ещё нет</div>
-              <p class="empty-text">
-                Мы только готовим арену. Как только появятся первые режимы, ты увидишь их здесь и сможешь начать
-                зарабатывать звёзды.
-              </p>
+              <section class="empty-card">
+                <div class="empty-title">Игр ещё нет</div>
+                <p class="empty-text">
+                  Мы только готовим арену. Как только появятся первые режимы, ты увидишь их здесь и сможешь начать
+                  зарабатывать звёзды.
+                </p>
+              </section>
+            </section>
+
+            <section class="page" id="page-balance">
+              <div class="section-title">Баланс</div>
+              <div class="balance-card">
+                <div class="balance-label">Текущий баланс</div>
+                <div class="balance-value">
+                  <span id="balance-amount">0</span>
+                  <span class="balance-currency">звёзд</span>
+                </div>
+              </div>
+
+              <div class="balance-actions">
+                <button class="btn btn-disabled" type="button" disabled>Пополнить</button>
+                <button class="btn btn-disabled" type="button" disabled>Вывести</button>
+              </div>
+
+              <div class="transactions-header">
+                <div class="transactions-title">История транзакций</div>
+                <button class="btn-link" type="button" id="transactions-open">Открыть</button>
+              </div>
             </section>
           </main>
+
+          <section class="transactions-panel" id="transactions-panel">
+            <div class="transactions-panel-inner">
+              <div class="transactions-panel-header">
+                <div class="transactions-panel-title">История транзакций</div>
+                <button class="transactions-panel-close" type="button" id="transactions-close">Закрыть</button>
+              </div>
+              <div class="transactions-list" id="transactions-list"></div>
+              <div class="transactions-empty" id="transactions-empty">
+                Транзакций пока нет.
+              </div>
+              <button class="btn-outline" type="button" id="transactions-clear">Очистить историю</button>
+              <div class="transactions-error" id="transactions-error"></div>
+            </div>
+          </section>
 
           <nav class="nav">
             <div class="nav-inner">
