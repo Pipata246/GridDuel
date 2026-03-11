@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         '— игры против бота.\n\n' +
         'Нажми кнопку ниже, чтобы открыть приложение.';
 
-      const webAppUrl = 'https://grid-duel.vercel.app/app.html';
+      const webAppUrl = 'https://grid-duel.vercel.app/public/app.html';
 
       await sendMessage(token, chatId, replyText, {
         reply_markup: {
