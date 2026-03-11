@@ -1,4 +1,4 @@
-;(function () {
+;(async function () {
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const isTelegramWebApp = !!tg;
 
@@ -188,7 +188,45 @@
   if (isTelegramWebApp) {
     initFullscreen(tg);
     applyUser(tg);
-    upsertUserInSupabase(tg);
+    await upsertUserInSupabase(tg);
+
+    const welcomeOverlay = document.getElementById('welcome-overlay');
+    const welcomeAccept = document.getElementById('welcome-accept');
+
+    if (welcomeOverlay && welcomeAccept) {
+      try {
+        const { data: userRow } = await supabaseClient
+          .from('users')
+          .select('id, terms_accepted')
+          .eq('id', window.currentUserId)
+          .single();
+
+        const alreadyAccepted = userRow && userRow.terms_accepted;
+
+        if (alreadyAccepted) {
+          welcomeOverlay.classList.add('welcome-overlay--hidden');
+        } else {
+          welcomeOverlay.classList.remove('welcome-overlay--hidden');
+          welcomeAccept.onclick = async function () {
+            try {
+              await supabaseClient
+                .from('users')
+                .update({
+                  terms_accepted: true,
+                  terms_accepted_at: new Date().toISOString()
+                })
+                .eq('id', window.currentUserId)
+                .throwOnError();
+              welcomeOverlay.classList.add('welcome-overlay--hidden');
+            } catch (e) {
+              // если не удалось обновить, оставляем экран
+            }
+          };
+        }
+      } catch (e) {
+        // если не смогли прочитать пользователя, оставляем оверлей
+      }
+    }
   } else {
     if (usernameEl) {
       usernameEl.textContent = 'Гость';
