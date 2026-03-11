@@ -85,6 +85,62 @@
                 <button class="btn-link" type="button" id="transactions-open">Открыть</button>
               </div>
             </section>
+
+            <section class="page" id="page-profile">
+              <div class="profile-card">
+                <div class="profile-header-row">
+                  <div>
+                    <div class="profile-label">Ник</div>
+                    <div class="profile-value" id="profile-username">—</div>
+                  </div>
+                  <div>
+                    <div class="profile-label">Telegram ID</div>
+                    <div class="profile-value" id="profile-telegram-id">—</div>
+                  </div>
+                </div>
+
+                <div class="profile-row">
+                  <div class="profile-label">Правила</div>
+                  <div class="profile-value" id="profile-terms-status">Ещё не приняты</div>
+                </div>
+
+                <div class="profile-row">
+                  <div class="profile-label">Реферальный код</div>
+                  <div class="profile-ref">
+                    <span class="profile-ref-code" id="profile-ref-code">—</span>
+                    <button class="btn-mini" type="button" id="profile-ref-copy">Скопировать</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-card">
+                <div class="profile-row profile-row--between">
+                  <div class="profile-label">Звук</div>
+                  <label class="toggle">
+                    <input type="checkbox" id="profile-sound-toggle" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="profile-row profile-row--column">
+                  <div class="profile-label">Громкость</div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="80"
+                    id="profile-sound-volume"
+                    class="slider"
+                  />
+                </div>
+              </div>
+
+              <div class="profile-card">
+                <div class="profile-row profile-row--between">
+                  <div class="profile-label">Статистика игр</div>
+                  <button class="btn-mini" type="button" id="profile-stats-open">Открыть</button>
+                </div>
+              </div>
+            </section>
           </main>
 
           <section class="transactions-panel" id="transactions-panel">
@@ -106,6 +162,18 @@
             <div class="alert-modal-inner">
               <div class="alert-modal-message" id="alert-modal-message"></div>
               <button class="btn-outline" type="button" id="alert-modal-close">Понятно</button>
+            </div>
+          </section>
+
+          <section class="stats-modal" id="stats-modal">
+            <div class="stats-modal-inner">
+              <div class="stats-modal-header">
+                <div class="stats-modal-title">Статистика игр</div>
+                <button class="stats-modal-close" type="button" id="stats-modal-close">Закрыть</button>
+              </div>
+              <div class="stats-modal-body" id="stats-modal-body">
+                Игры пока что недоступны. Как только появятся режимы, здесь будет подробная статистика по всем играм.
+              </div>
             </div>
           </section>
 

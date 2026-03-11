@@ -77,6 +77,10 @@
       window.currentUserBalance =
         typeof backendUser.balance === 'number' ? backendUser.balance : 0;
       window.currentUserTermsAccepted = !!backendUser.termsAccepted;
+      window.currentUserTermsAcceptedAt = backendUser.termsAcceptedAt || null;
+      window.currentUserTelegramId = backendUser.telegramId || null;
+      window.currentUserUsername = backendUser.username || null;
+      window.currentUserReferralCode = backendUser.referralCode || null;
       return backendUser;
     } catch (e) {
       // если бэк недоступен, просто не трогаем состояние
@@ -274,6 +278,7 @@
 ;(function attachBalanceHandlers() {
   const gamesPage = document.getElementById('page-games');
   const balancePage = document.getElementById('page-balance');
+  const profilePage = document.getElementById('page-profile');
   const navItems = document.querySelectorAll('.nav-item');
   const balanceAmountEl = document.getElementById('balance-amount');
   const transactionsPanel = document.getElementById('transactions-panel');
@@ -288,12 +293,19 @@
   const alertModalClose = document.getElementById('alert-modal-close');
 
   function setActivePage(index) {
-    if (!gamesPage || !balancePage) return;
-    if (index === 1) {
-      gamesPage.classList.remove('page--active');
+    if (!gamesPage || !balancePage || !profilePage) return;
+
+    gamesPage.classList.remove('page--active');
+    balancePage.classList.remove('page--active');
+    profilePage.classList.remove('page--active');
+
+    if (index === 0) {
+      gamesPage.classList.add('page--active');
+    } else if (index === 1) {
       balancePage.classList.add('page--active');
+    } else if (index === 3) {
+      profilePage.classList.add('page--active');
     } else {
-      balancePage.classList.remove('page--active');
       gamesPage.classList.add('page--active');
     }
   }
@@ -322,6 +334,102 @@
       if (e.target === alertModal) {
         alertModal.classList.remove('alert-modal--open');
       }
+    });
+  }
+
+  // Профиль
+  const profileUsernameEl = document.getElementById('profile-username');
+  const profileTelegramIdEl = document.getElementById('profile-telegram-id');
+  const profileTermsStatusEl = document.getElementById('profile-terms-status');
+  const profileRefCodeEl = document.getElementById('profile-ref-code');
+  const profileRefCopyBtn = document.getElementById('profile-ref-copy');
+  const soundToggle = document.getElementById('profile-sound-toggle');
+  const soundVolume = document.getElementById('profile-sound-volume');
+  const statsOpenBtn = document.getElementById('profile-stats-open');
+  const statsModal = document.getElementById('stats-modal');
+  const statsModalClose = document.getElementById('stats-modal-close');
+
+  function formatTermsStatus() {
+    if (!profileTermsStatusEl) return;
+    if (!window.currentUserTermsAccepted) {
+      profileTermsStatusEl.textContent = 'Ещё не приняты';
+      return;
+    }
+    if (!window.currentUserTermsAcceptedAt) {
+      profileTermsStatusEl.textContent = 'Приняты';
+      return;
+    }
+    const d = new Date(window.currentUserTermsAcceptedAt);
+    if (Number.isNaN(d.getTime())) {
+      profileTermsStatusEl.textContent = 'Приняты';
+      return;
+    }
+    const formatter = new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+    profileTermsStatusEl.textContent = 'Приняты: ' + formatter.format(d);
+  }
+
+  function applyProfileFromCache() {
+    if (profileUsernameEl && window.currentUserUsername) {
+      profileUsernameEl.textContent = window.currentUserUsername;
+    }
+    if (profileTelegramIdEl && window.currentUserTelegramId) {
+      profileTelegramIdEl.textContent = String(window.currentUserTelegramId);
+    }
+    if (profileRefCodeEl && window.currentUserReferralCode) {
+      profileRefCodeEl.textContent = window.currentUserReferralCode;
+    }
+    formatTermsStatus();
+  }
+
+  applyProfileFromCache();
+
+  if (profileRefCopyBtn && profileRefCodeEl) {
+    profileRefCopyBtn.addEventListener('click', function () {
+      const code = profileRefCodeEl.textContent || '';
+      if (!code) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(function () {});
+      }
+    });
+  }
+
+  // Настройки звука — локальное хранилище
+  const SOUND_ENABLED_KEY = 'gridduel_sound_enabled';
+  const SOUND_VOLUME_KEY = 'gridduel_sound_volume';
+
+  const savedEnabled = localStorage.getItem(SOUND_ENABLED_KEY);
+  const savedVolume = localStorage.getItem(SOUND_VOLUME_KEY);
+
+  if (soundToggle) {
+    soundToggle.checked = savedEnabled !== '0';
+  }
+  if (soundVolume) {
+    soundVolume.value = savedVolume !== null ? savedVolume : '80';
+  }
+
+  if (soundToggle) {
+    soundToggle.addEventListener('change', function () {
+      localStorage.setItem(SOUND_ENABLED_KEY, soundToggle.checked ? '1' : '0');
+    });
+  }
+
+  if (soundVolume) {
+    soundVolume.addEventListener('input', function () {
+      localStorage.setItem(SOUND_VOLUME_KEY, String(soundVolume.value));
+    });
+  }
+
+  // Модалка статистики
+  if (statsOpenBtn && statsModal && statsModalClose) {
+    statsOpenBtn.addEventListener('click', function () {
+      statsModal.classList.add('stats-modal--open');
+    });
+    statsModalClose.addEventListener('click', function () {
+      statsModal.classList.remove('stats-modal--open');
     });
   }
 

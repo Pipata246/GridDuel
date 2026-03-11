@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
       const { data: userRow, error: selectError } = await supabase
         .from('users')
-        .select('id, balance, terms_accepted')
+        .select('id, balance, terms_accepted, terms_accepted_at, telegram_id, username')
         .eq('telegram_id', telegramUser.id)
         .single();
 
@@ -45,12 +45,20 @@ export default async function handler(req, res) {
         throw selectError;
       }
 
+      const referralCode = `X${String(userRow.telegram_id || '')
+        .slice(-6)
+        .toUpperCase()}`;
+
       return res.status(200).json({
         ok: true,
         user: {
           id: userRow.id,
           balance: typeof userRow.balance === 'number' ? userRow.balance : 0,
-          termsAccepted: !!userRow.terms_accepted
+          termsAccepted: !!userRow.terms_accepted,
+          termsAcceptedAt: userRow.terms_accepted_at,
+          telegramId: userRow.telegram_id,
+          username: userRow.username,
+          referralCode
         }
       });
     }
