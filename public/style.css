@@ -261,7 +261,7 @@ body {
 }
 
 .nav-item--active {
-  background: linear-gradient(135deg, rgba(148, 162, 191, 0.9), rgba(0, 56, 90, 0.9));
+  background: linear-gradient(135deg, rgba(212, 219, 235, 0.95), rgba(106, 144, 180, 0.9));
   color: var(--text-main);
 }
 
