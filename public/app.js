@@ -323,6 +323,7 @@
   const navItems = document.querySelectorAll('.nav-item');
   const balanceAmountEl = document.getElementById('balance-amount');
   const headerBalanceEl = document.getElementById('header-balance-amount');
+  const headerBalanceChip = document.getElementById('header-balance');
   const transactionsPanel = document.getElementById('transactions-panel');
   const transactionsOpen = document.getElementById('transactions-open');
   const transactionsClose = document.getElementById('transactions-close');
@@ -367,6 +368,23 @@
       }
     });
   });
+
+  if (headerBalanceChip) {
+    headerBalanceChip.addEventListener('click', function () {
+      // визуально активируем вкладку Баланс
+      navItems.forEach(function (b, idx) {
+        if (idx === 1) {
+          b.classList.add('nav-item--active');
+        } else {
+          b.classList.remove('nav-item--active');
+        }
+      });
+      setActivePage(1);
+      if (window.playNavSound) {
+        window.playNavSound();
+      }
+    });
+  }
 
   function showAlert(message) {
     if (!alertModal || !alertModalMessage) return;
