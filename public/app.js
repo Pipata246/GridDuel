@@ -357,6 +357,9 @@
       });
       btn.classList.add('nav-item--active');
       setActivePage(index);
+      if (window.playNavSound) {
+        window.playNavSound();
+      }
     });
   });
 
@@ -427,6 +430,8 @@
 
   applyProfileFromCache();
 
+  let copySound;
+
   if (profileRefCopyBtn && profileRefCodeEl) {
     profileRefCopyBtn.addEventListener('click', function () {
       const code = profileRefCodeEl.textContent || '';
@@ -441,6 +446,23 @@
       setTimeout(function () {
         toast.classList.remove('toast--visible');
       }, 1500);
+
+      // Звук уведомления о копировании
+      if (soundToggle && soundToggle.checked) {
+        try {
+          if (!copySound) {
+            copySound = new Audio('/sounds/uved.wav');
+          }
+          const vol = soundVolume ? Number(soundVolume.value) : 80;
+          const volume =
+            Number.isNaN(vol) ? 0.8 : Math.max(0, Math.min(1, vol / 100));
+          copySound.volume = volume;
+          copySound.currentTime = 0;
+          copySound.play().catch(function () {});
+        } catch (e) {
+          // игнорируем ошибки аудио
+        }
+      }
     });
   }
 
@@ -479,6 +501,66 @@
       statsModal.classList.remove('stats-modal--open');
     });
   }
+
+  // Звук меню навигации
+  (function initNavSound() {
+    let navSound;
+
+    function getVolume() {
+      if (!soundVolume) return 0.8;
+      const vol = Number(soundVolume.value);
+      if (Number.isNaN(vol)) return 0.8;
+      return Math.max(0, Math.min(1, vol / 100));
+    }
+
+    window.playNavSound = function () {
+      if (!soundToggle || !soundToggle.checked) return;
+
+      try {
+        if (!navSound) {
+          navSound = new Audio('/sounds/menu.mp3');
+          navSound.volume = getVolume();
+        } else {
+          navSound.volume = getVolume();
+        }
+
+        navSound.currentTime = 0;
+        navSound.play().catch(function () {});
+      } catch (e) {
+        // игнорируем ошибки аудио
+      }
+    };
+  })();
+
+  // Звук tap при клике по всем элементам, кроме навигации и кнопки «Скопировать»
+  (function initTapSound() {
+    let tapSound;
+
+    function getVolume() {
+      if (!soundVolume) return 0.8;
+      const vol = Number(soundVolume.value);
+      if (Number.isNaN(vol)) return 0.8;
+      return Math.max(0, Math.min(1, vol / 100));
+    }
+
+    function playTapSound() {
+      if (!soundToggle || !soundToggle.checked) return;
+      try {
+        if (!tapSound) {
+          tapSound = new Audio('/sounds/tap.wav');
+        }
+        tapSound.volume = getVolume();
+        tapSound.currentTime = 0;
+        tapSound.play().catch(function () {});
+      } catch (e) {}
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.nav')) return;
+      if (e.target.id === 'profile-ref-copy' || e.target.closest('#profile-ref-copy')) return;
+      playTapSound();
+    }, true);
+  })();
 
   async function loadBalanceAndTransactions() {
     if (!window.currentUserId) return;
